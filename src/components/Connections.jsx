@@ -13,6 +13,8 @@ import {
   Search,
   Filter,
   ExternalLink,
+  AlertCircle,
+  ArrowLeft,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
