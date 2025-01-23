@@ -92,7 +92,6 @@ const Chat = () => {
           firstName: user.firstName,
           message: newMessage,
           timestamp: new Date(),
-          isOwnMessage: true,
         },
       ]);
 
