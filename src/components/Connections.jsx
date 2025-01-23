@@ -32,9 +32,6 @@ const Connections = () => {
       setError(null);
       const response = await axios.get(`${BASE_URL}/user/connection/accepted`, {
         withCredentials: true,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
       });
       const connectionData = response.data.connections || [];
       dispatch(addConnection(connectionData));
