@@ -3,6 +3,8 @@ import { useParams } from "react-router-dom";
 import { createSocketConnection } from "../utils/socket";
 import { useSelector } from "react-redux";
 import { Send, UserCircle, MoreHorizontal } from "lucide-react";
+import axios from "axios";
+import { BASE_URL } from "../utils/constant";
 
 let socket;
 
@@ -10,12 +12,35 @@ const Chat = () => {
   const { targetUserId } = useParams();
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [targetUserName, setTargetUserName] = useState("");
   const messagesEndRef = useRef(null);
 
   const user = useSelector((state) => state.user);
   const userId = user?._id;
-  
+
+  const fetchChatMessage = async () => {
+    try {
+      const chat = await axios.get(BASE_URL + "/chat/" + targetUserId, {
+        withCredentials: true,
+      });
+
+      const chatMessage = chat?.data?.messages.map((msg) => {
+        return {
+          message: msg.text,
+          firstName: msg.senderId.firstName,
+          timestamp: new Date(msg.createdAt),
+        };
+      });
+
+      setMessages(chatMessage);
+    } catch (error) {
+      console.error("Error fetching chat messages", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchChatMessage();
+  }, [targetUserId]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -39,9 +64,11 @@ const Chat = () => {
     socket.on("newMessage", ({ message, firstName }) => {
       setMessages((prev) => [
         ...prev,
-        { firstName, message, timestamp: new Date() },
+        { firstName, message, timestamp: new Date(), isOwnMessage: false },
       ]);
     });
+
+
 
     return () => {
       if (socket) socket.disconnect();
@@ -73,32 +100,28 @@ const Chat = () => {
     }
   };
 
+
   return (
-    <div className="flex h-screen bg-gradient-to-br from-[#f5f7fa] to-[#e6e9f0] text-gray-800">
-      {/* Chat Container */}
-      <div className="w-full max-w-4xl mx-auto bg-white shadow-2xl rounded-3xl overflow-hidden flex flex-col">
-        {/* Chat Header */}
-        <div className="bg-white border-b border-gray-100 p-6 flex justify-between items-center">
+    <div className="flex h-screen bg-gradient-to-br from-[#1f1f1f] to-[#121212] text-gray-200">
+      <div className="w-full max-w-4xl mx-auto bg-[#1a1a1a] shadow-2xl rounded-3xl overflow-hidden flex flex-col">
+        <div className="bg-[#1a1a1a] border-b border-gray-700 p-6 flex justify-between items-center">
           <div className="flex items-center space-x-4">
-            <div className="w-12 h-12 bg-gradient-to-br from-pink-300 to-purple-400 rounded-full flex items-center justify-center">
+            <div className="w-12 h-12 bg-gradient-to-br from-[#6b46c1] to-[#e74694] rounded-full flex items-center justify-center">
               <UserCircle className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-800">
-                { targetUserId|| "Conversation"}
+              <h2 className="text-xl font-semibold text-gray-200">
+                {targetUserName || "Conversation"}
               </h2>
-              <p className="text-sm text-gray-500">
-                {isTyping ? "Typing..." : "Active now"}
-              </p>
+              
             </div>
           </div>
-          <button className="text-gray-400 hover:text-gray-600 transition-colors">
+          <button className="text-gray-400 hover:text-gray-300 transition-colors">
             <MoreHorizontal />
           </button>
         </div>
 
-        {/* Messages Container */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-[#f9fafb]">
+        <div className="flex flex-col space-y-4 px-6 py-4 overflow-y-auto">
           {messages.length === 0 ? (
             <div className="text-center text-gray-400 py-8">
               No messages yet. Start chatting!
@@ -108,14 +131,16 @@ const Chat = () => {
               <div
                 key={index}
                 className={`flex ${
-                  msg.isOwnMessage ? "justify-end" : "justify-start"
+                  user.firstName === msg.firstName
+                    ? "justify-end"
+                    : "justify-start"
                 }`}
               >
                 <div
                   className={`max-w-xl px-5 py-3 rounded-2xl shadow-md ${
-                    msg.isOwnMessage
-                      ? "bg-gradient-to-br from-purple-500 to-pink-500 text-white"
-                      : "bg-white text-gray-800 border border-gray-100"
+                    user.firstName === msg.firstName
+                      ? "bg-gradient-to-br from-[#6b46c1] to-[#e74694] text-white"
+                      : "bg-[#1a1a1a] text-gray-200 border border-gray-700"
                   }`}
                 >
                   <p className="break-words text-sm">{msg.message}</p>
@@ -135,22 +160,21 @@ const Chat = () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Message Input */}
-        <div className="bg-white border-t border-gray-100 p-6">
+        <div className="bg-[#1a1a1a] border-t border-gray-700 p-6">
           <form onSubmit={sendMessage} className="flex space-x-3">
             <input
               value={newMessage}
-              onChange={(e) => setNewMessage(e.target.value)}
+            
               placeholder="Type your message..."
-              className="flex-1 bg-gray-100 text-gray-800 rounded-full px-5 py-3 
-              focus:outline-none focus:ring-2 focus:ring-purple-300 
+              className="flex-1 bg-[#212121] text-gray-200 rounded-full px-5 py-3 
+              focus:outline-none focus:ring-2 focus:ring-[#6b46c1] 
               transition-all duration-300 text-sm"
               autoComplete="off"
             />
             <button
               type="submit"
               disabled={!newMessage.trim()}
-              className="bg-gradient-to-br from-purple-500 to-pink-500 
+              className="bg-gradient-to-br from-[#6b46c1] to-[#e74694] 
               text-white rounded-full w-12 h-12 flex items-center justify-center 
               hover:opacity-90 transition-all duration-300 
               disabled:opacity-50 disabled:cursor-not-allowed 
