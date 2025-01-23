@@ -50,6 +50,7 @@ const Login = () => {
         { emailId: email, password },
         { withCredentials: true }
       );
+      localStorage.setItem("authToken", "vipul");
       dispatch(addUser(response.data));
 
       toast.success("Welcome back! 🎉", {
@@ -69,8 +70,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-blue-900 flex items-center justify-center p-4">
-
-
       <div className="w-full max-w-md transform transition-all duration-300 hover:scale-[1.01]">
         <div className="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-800">
           {/* Logo/Icon */}
