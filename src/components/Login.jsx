@@ -42,6 +42,14 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!email || !password) {
+      toast.error("Please fill in both fields.", {
+        className: "bg-red-500 text-white",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -50,6 +58,12 @@ const Login = () => {
         { emailId: email, password },
         { withCredentials: true }
       );
+
+      // Store the token in localStorage
+      if (response.data.token) {
+        localStorage.setItem("authToken", response.data.token);
+      }
+
       dispatch(addUser(response.data));
 
       toast.success("Welcome back! 🎉", {
@@ -57,9 +71,9 @@ const Login = () => {
         className: "bg-gray-900 text-white",
       });
 
-      navigate("/");
+      navigate("/"); // Adjust this if you need to navigate somewhere specific
     } catch (error) {
-      toast.error(error?.response?.data || "Login failed", {
+      toast.error(error?.response?.data?.message || "Login failed", {
         className: "bg-red-500 text-white",
       });
     } finally {
@@ -69,8 +83,6 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-blue-900 flex items-center justify-center p-4">
-
-
       <div className="w-full max-w-md transform transition-all duration-300 hover:scale-[1.01]">
         <div className="bg-black/40 backdrop-blur-xl rounded-2xl shadow-2xl p-8 border border-gray-800">
           {/* Logo/Icon */}

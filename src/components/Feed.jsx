@@ -34,8 +34,12 @@ const Feed = () => {
     try {
       setLoading(true);
       setError(null);
+      const token = localStorage.getItem("authToken"); // Or wherever the token is stored
       const response = await axios.get(`${BASE_URL}/feed?page=1&limit=50`, {
-        withCredentials: true,
+        headers: {
+          Authorization: `Bearer ${token}`, // Send token if stored in localStorage or similar
+        },
+        withCredentials: true, // Optional if you rely on cookies
       });
       dispatch(addFeed(response.data.data));
     } catch (error) {
@@ -247,8 +251,6 @@ const Feed = () => {
                               {currentProfile.about}
                             </p>
                           )}
-
-                         
 
                           {activeTab === "skills" && (
                             <div className="flex flex-wrap gap-2">
