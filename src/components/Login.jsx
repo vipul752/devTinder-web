@@ -58,7 +58,7 @@ const Login = () => {
         className: "bg-gray-900 text-white",
       });
 
-      navigate("/");
+      navigate("/feed");
     } catch (error) {
       toast.error(error?.response?.data || "Login failed", {
         className: "bg-red-500 text-white",
