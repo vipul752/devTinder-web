@@ -26,11 +26,11 @@ const Body = () => {
       try {
         const response = await axios.get(`${BASE_URL}/profile/view`);
 
-        // Dispatch user data to Redux store
+
         dispatch(addUser(response.data));
       } catch (error) {
         console.error("Auth error:", error);
-        // Clear invalid token
+
         localStorage.removeItem("authToken");
         delete axios.defaults.headers.common["Authorization"];
 
