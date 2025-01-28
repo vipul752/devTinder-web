@@ -40,6 +40,9 @@ const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
+  // Set up axios defaults
+  axios.defaults.withCredentials = true;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -53,26 +56,35 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await axios.post(
-        BASE_URL + "/login",
-        { emailId: email, password },
-        { withCredentials: true }
-      );
+      const response = await axios.post(`${BASE_URL}/login`, {
+        emailId: email,
+        password,
+      });
 
-      // Store the token in localStorage
+      // Store the token in both localStorage and set it for axios
       if (response.data.token) {
         localStorage.setItem("authToken", response.data.token);
+        // Set default authorization header for all future requests
+        axios.defaults.headers.common[
+          "Authorization"
+        ] = `Bearer ${response.data.token}`;
       }
 
-      dispatch(addUser(response.data));
+      const userData = {
+        id: response.data.id,
+        email: response.data.email,
+        name: response.data.name,
+      };
+      dispatch(addUser(userData));
 
       toast.success("Welcome back! 🎉", {
         duration: 2000,
         className: "bg-gray-900 text-white",
       });
 
-      navigate("/"); // Adjust this if you need to navigate somewhere specific
+      navigate("/");
     } catch (error) {
+      console.error("Login error:", error);
       toast.error(error?.response?.data?.message || "Login failed", {
         className: "bg-red-500 text-white",
       });

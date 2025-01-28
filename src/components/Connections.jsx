@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import axios from "axios";
 import { addConnection } from "../utils/connectionSlice";
 import { BASE_URL } from "../utils/constant";
-import { UserCircle, Mail, MapPin, Code, MessageCircle, Loader2, Search, Filter, ExternalLink } from "lucide-react";
+import { UserCircle, Mail, MapPin, Code, MessageCircle, Loader2, Search, Filter, ExternalLink, AlertCircle, ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Connections = () => {

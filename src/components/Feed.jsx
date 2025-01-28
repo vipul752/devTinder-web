@@ -34,12 +34,12 @@ const Feed = () => {
     try {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem("authToken"); // Or wherever the token is stored
-      const response = await axios.get(`${BASE_URL}/feed?page=1&limit=50`, {
+      const token = localStorage.getItem("authToken");
+      const response = await axios.get(`${BASE_URL}/feed?page=1&limit=100`, {
         headers: {
-          Authorization: `Bearer ${token}`, // Send token if stored in localStorage or similar
+          Authorization: token,
         },
-        withCredentials: true, // Optional if you rely on cookies
+        withCredentials: true,
       });
       dispatch(addFeed(response.data.data));
     } catch (error) {

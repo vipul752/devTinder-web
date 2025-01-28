@@ -12,20 +12,29 @@ import { Toaster } from "react-hot-toast";
 const Body = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
   const user = useSelector((state) => state.user);
-  const fetchUser = async () => {
-    if (user) return;
-    try {
-      const response = await axios.get(BASE_URL + "/profile/view", {
-        withCredentials: true,
-      });
 
-      dispatch(addUser(response.data));
-    } catch (error) {
-      console.log(error);
-      if (error.response.status === 401) {
-        toast.error("Please login to continue.", {
+  const fetchUser = async () => {
+    const token = localStorage.getItem("authToken");
+
+    // If we have a token but no user in Redux state
+    if (token && !user) {
+      // Set up axios defaults
+      axios.defaults.withCredentials = true;
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+      try {
+        const response = await axios.get(`${BASE_URL}/profile/view`);
+
+        // Dispatch user data to Redux store
+        dispatch(addUser(response.data));
+      } catch (error) {
+        console.error("Auth error:", error);
+        // Clear invalid token
+        localStorage.removeItem("authToken");
+        delete axios.defaults.headers.common["Authorization"];
+
+        toast.error("Session expired. Please login again.", {
           style: {
             background: "#f44336",
             color: "#fff",
@@ -39,7 +48,7 @@ const Body = () => {
 
   useEffect(() => {
     fetchUser();
-  }, []);
+  }, []); // Run only on mount
 
   return (
     <div className="overflow-y-hidden">
